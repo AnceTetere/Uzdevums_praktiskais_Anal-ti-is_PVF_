@@ -1,0 +1,61 @@
+library(dplyr)
+
+# 1) Galejais saraksts bija izlase no visiem darbiniekiem uzradit slimo dienu ipatsvaru.
+
+saraksts_lielais <-
+  read.csv("saraksts.csv",
+           header = TRUE,
+           stringsAsFactors = TRUE)
+head(saraksts_lielais)
+nrow(saraksts_lielais)
+
+typeof(saraksts_lielais$sick_leave_proportion2021_percentage)
+
+saraksts_mazais <-
+  read.csv("Saraksts_izlase.csv",
+           header = TRUE,
+           stringsAsFactors = TRUE)
+head(saraksts_mazais)
+tail(saraksts_mazais)
+nrow(saraksts_mazais)
+sum(!is.na(saraksts_mazais$employeeID))
+saraksts_mazais$employeeID <- saraksts_mazais$employeeID[1:54]
+length(saraksts_mazais)
+saraksts_mazais$employeeID
+
+names(saraksts_mazais)[1] <- 'employeeID'
+names(saraksts_mazais)[2] <- 'sick_leave_proportion2021_percentage'
+typeof(saraksts_mazais$sick_leave_proportion2021_percentage)
+typeof(saraksts_mazais$employeeID)
+saraksts_mazais$employeeID <-
+  as.character(saraksts_mazais$employeeID)
+saraksts_mazais$sick_leave_proportion2021_percentage <-
+  as.double(saraksts_mazais$sick_leave_proportion2021_percentage)
+
+saraksts_mazais <-
+  data.frame(
+    saraksts_mazais$employeeID[1:54],
+    saraksts_mazais$sick_leave_proportion2021_percentage[1:54]
+  )
+head(saraksts_mazais)
+saraksts_mazais <- saraksts_mazais[-55,]
+nrow(saraksts_mazais)
+
+i <- 1
+while (i <= nrow(saraksts_mazais)) {
+  x <- saraksts_mazais$employeeID[i]
+  x
+  y <-
+    saraksts_lielais$sick_leave_proportion2021_percentage[saraksts_lielais$employeeID == x]
+  y
+  saraksts_mazais$sick_leave_proportion2021_percentage[saraksts_mazais$employeeID == x] <-
+    y
+  
+  i = i + 1
+  
+}
+head(saraksts_mazais)
+
+write.csv(saraksts,
+          "saraksts-izlase.csv",
+          row.names = FALSE)

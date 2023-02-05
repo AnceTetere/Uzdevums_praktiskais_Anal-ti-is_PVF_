@@ -1,0 +1,71 @@
+library(dplyr)
+library(ggplot2)
+
+employee_totals2021_df_withoutOutliers <-
+  read.csv(
+    "Employee_totals_df_noOutliers.csv",
+    header = TRUE,
+    stringsAsFactors = FALSE
+  )
+
+head(employee_totals2021_df_withoutOutliers)
+nrow(employee_totals2021_df_withoutOutliers)
+
+# 1) Aprēķināt vidējo atvaļinājuma dienu īpatsvaru gadā
+
+round(
+  mean(
+    employee_totals2021_df_withoutOutliers$vacation_proportion2021_percentage
+  ),
+  digits = 2
+)
+round(sd(employee_totals2021_df_withoutOutliers$months_worked2021),
+      digits = 2)
+
+round(
+  median(
+    employee_totals2021_df_withoutOutliers$vacation_proportion2021_percentage
+  ),
+  digits = 2
+)
+IQR(employee_totals2021_df_withoutOutliers$vacation_proportion2021_percentage)
+
+ggplot(employee_totals2021_df_withoutOutliers,
+       aes(vacation_proportion2021_percentage)) +
+  geom_histogram(binwidth = 1.5, fill = "#515A5A")
+
+# 2) Aprēķināt vidējo atvaļinājuma dienu īpatsvaru gadā tiem, kuriem tās bijušas.
+
+employees_withHolidays_noOutliers_df <-
+  subset(employee_totals2021_df_withoutOutliers,
+         vacation_proportion2021_percentage != 0)
+head(employees_withHolidays_noOutliers_df)
+nrow(employees_withHolidays_noOutliers_df)
+
+round(
+  mean(
+    employees_withHolidays_noOutliers_df$vacation_proportion2021_percentage
+  ),
+  digits = 2
+)
+round(sd(employees_withHolidays_noOutliers_df$months_worked2021),
+      digits = 2)
+
+round(
+  median(
+    employees_withHolidays_noOutliers_df$vacation_proportion2021_percentage
+  ),
+  digits = 2
+)
+IQR(employees_withHolidays_noOutliers_df$vacation_proportion2021_percentage)
+
+ggplot(employees_withHolidays_noOutliers_df,
+       aes(vacation_proportion2021_percentage)) +
+  geom_histogram(binwidth = 1.5, fill = "#1A5276")
+
+
+write.csv(
+  employees_withHolidays_noOutliers_df,
+  "employees_withHolidays_noOutliers_df.csv",
+  row.names = FALSE
+)

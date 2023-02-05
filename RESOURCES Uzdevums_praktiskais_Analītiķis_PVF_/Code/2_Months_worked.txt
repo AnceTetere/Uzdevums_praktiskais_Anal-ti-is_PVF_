@@ -1,0 +1,90 @@
+library(dplyr)
+library(ggplot2)
+
+dati2 <-
+  read.csv("Dati.csv", header = TRUE, stringsAsFactors = TRUE)
+head(dati2)
+
+# Datu pārbaude
+nrow(dati2)
+dati3 <- dati2
+nrow(dati3)
+
+# Pārbaudīt vai visi darbinieki 2021. gadā ir strādājuši vienādu mēnešu skaitu, vai tas atšķiras.
+
+# 1) Sakārto <employeeID> augošā secībā.
+
+dati3ordered <- dati3[order(dati3$employeeID), ]
+head(dati3ordered)
+tail(dati3ordered)
+nrow(dati3ordered)
+
+# 2) Skaitot reizes, cik katrs <employeeID> uzrādas orģinālajā tabulā (jo katra rinda atbilst vienam mēnesim),
+#    pakārtoti tiek izveidots jauns vektors 'character' formātā,
+#    lai kaut kādu nejaušu kalkulāciju rezultātā šie darbinieku identifikatori netiktu pārveidoti.
+
+i <- 1
+z <- 1
+occurrences_vec <- c(0L, 0L, 0L)
+employee_numbers <- c("0", "0", "0")
+typeof(employee_numbers)
+
+while (i <= nrow(dati3ordered)) {
+  x <- dati3ordered$employeeID[i]
+  y <- sum(dati3ordered$employeeID == x)
+  #  cat("Employee Nr.", x, "had", y, "occurrences in the data set \n")
+  employee_numbers[z] <-
+    x   # Izveido vektoru ar darbinieku identifikācijas numuriem.
+  occurrences_vec[z] <-
+    y    # Izveido vektoru ar darbinieku rindām tabulā, attiecīgi mēnešiem.
+  
+  z = z + 1      # 'z' definē vērības pozīciju jaunajos vektoros.
+  # Pozīcijai aizpildoties, tiek pārvietots uz nākamo.
+  i = i + y      # 'i' ņem pa vienam <employeeID> no <dati3ordered$employeeID> kolonnas.
+  # Par cik šī kolonnā ir kārtota tā, ka vienādie darbinieku identifikatoru numuri seko cits citam,
+  # nākošais atšķirīgais <employeeID> atrodams pēc 'i + y' pozīcijām kārtotajā vektorā.
+  # 'i' ir pozīcija, kas nāk pēc apakšvektora y kolonnā <dati3ordered$employeeID>, kur koda cilpa atrod nākamo <employeeID> nummuru.
+  
+}
+
+head(occurrences_vec)  # Vektors <occurrences_vec> rāda mēnešu skaitu, ko katrs darbinieks nostrādājis 2021. gadā.
+typeof(occurrences_vec)
+length(occurrences_vec)
+
+head(employee_numbers)  # Vektors <employee_numbers> rāda darbinieku identifikācijas numurus <employeeIDs>
+# teksta formātā un augošā secībā, katram numuram parādoties tikai vienreiz.
+typeof(employee_numbers)
+length(employee_numbers) # Garumam jābūt vienādam ar <occurrences_vec>.
+
+
+# 3) Izveido vienkāršu tabulu, kas sast;av tikai no <employee_numbers> kolonnas un atbilstošiem <occurrences_vec> skaitļiem.
+#    Šī tabula rāda, cik tieši mēnešus katrs no darbiniekiem ir bijis nodarbināts uzņēmumā 2021. gadā.
+
+if (length(occurrences_vec) == length(employee_numbers)) {
+  # Tabulā <employee_months2021_df> darbinieku identifikatori <employeeID> ir augošā secībā un blakus uzrādās nostrādāto mēnešu skaits.
+  employee_months2021_df <-
+    data.frame(employeeID = employee_numbers, months_worked2021 = occurrences_vec)
+}
+head(employee_months2021_df, 20)
+tail(employee_months2021_df)
+nrow(employee_months2021_df)
+
+# 4) Tiek zīmēta kolonnu diagramma, kas ilustrē nostrādāto mēnešu skaitu katram darbiniekam.
+
+qplot(
+  x = months_worked2021,
+  data = employee_months2021_df,
+  geom = "bar",
+  xlim = c(1, 13),
+  xlab = "Nostrādāto mēnešu skaits",
+  ylab = "Darbinieku skaits",
+  main = "Kolonnu diagramma, kura uzrāda darbinieku skaitu, kas nostrādājuši noteiktu mēnešu skaitu 2021. gadā."
+)
+
+# šajā daļā tika pārbaudīts vai katrs no darbiniekiem strādājis vienādu mēnešu laiku 2021. gadā, vai tie atšķiras.
+# SECINĀJUMS: 2021. gadā nostrādāto mēnešu skaits starp darbiniekiem atšķiras,
+#               lai gan lielākā daļa ir bijusi nodarbināta uzņēmumā visu gadu.
+
+write.csv(employee_months2021_df,
+          "Months_worked2021_df2.csv",
+          row.names = FALSE)
